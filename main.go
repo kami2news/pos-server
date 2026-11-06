@@ -42,6 +42,14 @@ func main() {
 	r.POST("/auth/register", h.Register) // 管理者のみ（X-Admin-Secret必須）
 	r.POST("/auth/login", h.Login)
 
+	// ── 注文者モード（認証不要・QRアクセス） ────────────────
+	public := r.Group("/public")
+	{
+		public.GET("/:storeCode/info", h.PublicGetStoreInfo)
+		public.POST("/:storeCode/orders", h.PublicCreateOrder)
+		public.GET("/orders/:orderId", h.PublicGetOrder)
+	}
+
 	// ── 認証必須ルート ──────────────────────────────────────
 	auth := r.Group("/", middleware.Auth())
 	{
