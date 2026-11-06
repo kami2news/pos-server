@@ -34,7 +34,8 @@ type Order struct {
 	BusinessDayID  string     `db:"business_day_id" json:"business_day_id"`
 	OrderNumber    string     `db:"order_number"    json:"order_number"`
 	Subtotal       int        `db:"subtotal"        json:"subtotal"`
-	DiscountAmount int        `db:"discount_amount" json:"discount_amount"`
+	DiscountAmount       int `db:"discount_amount"        json:"discount_amount"`
+	ManualDiscountAmount int `db:"manual_discount_amount" json:"manual_discount_amount"`
 	TotalAmount    int        `db:"total_amount"    json:"total_amount"`
 	Status         string     `db:"status"          json:"status"`
 	PaymentMethod  *string    `db:"payment_method"  json:"payment_method"`

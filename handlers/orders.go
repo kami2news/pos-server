@@ -50,13 +50,14 @@ type orderItemReq struct {
 }
 
 type createOrderReq struct {
-	Items          []orderItemReq `json:"items"           binding:"required,min=1"`
-	Subtotal       int            `json:"subtotal"        binding:"required"`
-	DiscountAmount int            `json:"discount_amount"`
-	TotalAmount    int            `json:"total_amount"    binding:"required"`
-	Status         string         `json:"status"`          // "pending" or "completed"
-	PaymentMethod  *string        `json:"payment_method"`
-	ReceivedAmount *int           `json:"received_amount"`
+	Items                []orderItemReq `json:"items"                  binding:"required,min=1"`
+	Subtotal             int            `json:"subtotal"               binding:"required"`
+	DiscountAmount       int            `json:"discount_amount"`
+	ManualDiscountAmount int            `json:"manual_discount_amount"`
+	TotalAmount          int            `json:"total_amount"           binding:"required"`
+	Status               string         `json:"status"`                 // "pending" or "completed"
+	PaymentMethod        *string        `json:"payment_method"`
+	ReceivedAmount       *int           `json:"received_amount"`
 }
 
 func (h *Handler) CreateOrder(c *gin.Context) {
@@ -91,11 +92,11 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 	if err := tx.Get(&order, `
 		INSERT INTO orders
 		  (store_id, business_day_id, order_number, subtotal, discount_amount,
-		   total_amount, status, payment_method, received_amount)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+		   manual_discount_amount, total_amount, status, payment_method, received_amount)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
 		RETURNING *`,
 		storeID, bdID, orderNumber,
-		req.Subtotal, req.DiscountAmount, req.TotalAmount,
+		req.Subtotal, req.DiscountAmount, req.ManualDiscountAmount, req.TotalAmount,
 		status, req.PaymentMethod, req.ReceivedAmount); err != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "注文作成失敗"})
@@ -208,8 +209,9 @@ func orderToMap(o models.Order, items []models.OrderItem) gin.H {
 		"id":              o.ID,
 		"order_number":    o.OrderNumber,
 		"subtotal":        o.Subtotal,
-		"discount_amount": o.DiscountAmount,
-		"total_amount":    o.TotalAmount,
+		"discount_amount":        o.DiscountAmount,
+		"manual_discount_amount": o.ManualDiscountAmount,
+		"total_amount":           o.TotalAmount,
 		"status":          o.Status,
 		"payment_method":  o.PaymentMethod,
 		"received_amount": o.ReceivedAmount,
