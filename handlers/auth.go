@@ -18,8 +18,9 @@ import (
 // Header: X-Admin-Secret: <ADMIN_SECRET env>
 // ─────────────────────────────────────────────
 type registerReq struct {
-	StoreName string `json:"store_name" binding:"required"`
-	Password  string `json:"password"   binding:"required,min=4"`
+	StoreName  string `json:"store_name"  binding:"required"`
+	Password   string `json:"password"    binding:"required,min=4"`
+	ThemeColor int    `json:"theme_color"`
 }
 
 func (h *Handler) Register(c *gin.Context) {
@@ -35,6 +36,11 @@ func (h *Handler) Register(c *gin.Context) {
 		return
 	}
 
+	// theme_color が未指定ならデフォルト（ネイビー #1456A0）
+	if req.ThemeColor == 0 {
+		req.ThemeColor = 1333408
+	}
+
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ハッシュ生成失敗"})
@@ -43,17 +49,18 @@ func (h *Handler) Register(c *gin.Context) {
 
 	var store models.Store
 	if err := h.db.Get(&store, `
-		INSERT INTO stores (name, password_hash) VALUES ($1, $2)
-		RETURNING id, name, created_at`,
-		req.StoreName, string(hash)); err != nil {
+		INSERT INTO stores (name, password_hash, theme_color) VALUES ($1, $2, $3)
+		RETURNING id, name, theme_color, created_at`,
+		req.StoreName, string(hash), req.ThemeColor); err != nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "既に存在する店舗名です"})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"id":         store.ID,
-		"store_name": store.Name,
-		"message":    "店舗を作成しました",
+		"id":          store.ID,
+		"store_name":  store.Name,
+		"theme_color": store.ThemeColor,
+		"message":     "店舗を作成しました",
 	})
 }
 
@@ -90,9 +97,10 @@ func (h *Handler) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"token":      token,
-		"store_id":   store.ID,
-		"store_name": store.Name,
+		"token":       token,
+		"store_id":    store.ID,
+		"store_name":  store.Name,
+		"theme_color": store.ThemeColor,
 	})
 }
 

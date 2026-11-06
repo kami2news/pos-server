@@ -6,6 +6,7 @@ type Store struct {
 	ID           string    `db:"id"            json:"id"`
 	Name         string    `db:"name"          json:"name"`
 	PasswordHash string    `db:"password_hash" json:"-"`
+	ThemeColor   int       `db:"theme_color"   json:"theme_color"`
 	CreatedAt    time.Time `db:"created_at"    json:"created_at"`
 }
 

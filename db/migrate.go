@@ -15,6 +15,9 @@ CREATE TABLE IF NOT EXISTS stores (
 	created_at    TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- theme_color が無い既存DBへの追加（冪等）
+ALTER TABLE stores ADD COLUMN IF NOT EXISTS theme_color INT DEFAULT 1333408;
+
 CREATE TABLE IF NOT EXISTS business_days (
 	id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 	store_id  UUID NOT NULL REFERENCES stores(id),
