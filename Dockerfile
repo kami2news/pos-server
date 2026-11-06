@@ -1,7 +1,9 @@
 FROM golang:1.21-alpine AS builder
 WORKDIR /app
+COPY go.mod ./
+RUN go mod download || true
 COPY . .
-RUN go mod tidy && go build -o server .
+RUN GONOSUMDB=* GOFLAGS=-mod=mod go build -o server .
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates tzdata
