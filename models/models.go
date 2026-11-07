@@ -1,6 +1,11 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/lib/pq"
+)
+
 
 type Store struct {
 	ID           string    `db:"id"            json:"id"`
@@ -42,6 +47,20 @@ type Order struct {
 	ReceivedAmount *int       `db:"received_amount" json:"received_amount"`
 	OrderedAt      time.Time  `db:"ordered_at"      json:"ordered_at"`
 	UpdatedAt      time.Time  `db:"updated_at"      json:"updated_at"`
+}
+
+type DiscountRule struct {
+	ID               string         `db:"id"                  json:"id"`
+	StoreID          string         `db:"store_id"            json:"store_id"`
+	Name             string         `db:"name"                json:"name"`
+	IsActive         bool           `db:"is_active"           json:"is_active"`
+	ConditionType    string         `db:"condition_type"      json:"condition_type"`
+	TargetProductIDs pq.StringArray `db:"target_product_ids"  json:"target_product_ids"`
+	MinQuantity      int            `db:"min_quantity"        json:"min_quantity"`
+	MinAmount        int            `db:"min_amount"          json:"min_amount"`
+	DiscountType     string         `db:"discount_type"       json:"discount_type"`
+	DiscountValue    int            `db:"discount_value"      json:"discount_value"`
+	CreatedAt        time.Time      `db:"created_at"          json:"created_at"`
 }
 
 type OrderItem struct {

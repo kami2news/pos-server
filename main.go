@@ -75,6 +75,12 @@ func main() {
 		api.PATCH("/orders/:id/ready", h.ReadyOrder)
 		api.PATCH("/orders/:id/handover", h.HandoverOrder)
 		api.PATCH("/orders/:id/cancel", h.CancelOrder)
+
+		// セット割ルール
+		api.GET("/discount-rules", h.ListDiscountRules)
+		api.POST("/discount-rules", h.CreateDiscountRule)
+		api.PATCH("/discount-rules/:id", h.UpdateDiscountRule)
+		api.DELETE("/discount-rules/:id", h.DeleteDiscountRule)
 	}
 
 	port := os.Getenv("PORT")

@@ -63,4 +63,18 @@ CREATE TABLE IF NOT EXISTS order_items (
 	unit_price   INT  NOT NULL,
 	quantity     INT  NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS discount_rules (
+	id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+	store_id            UUID NOT NULL REFERENCES stores(id),
+	name                TEXT NOT NULL,
+	is_active           BOOLEAN DEFAULT TRUE,
+	condition_type      TEXT NOT NULL,
+	target_product_ids  TEXT[] DEFAULT '{}',
+	min_quantity        INT DEFAULT 2,
+	min_amount          INT DEFAULT 1000,
+	discount_type       TEXT NOT NULL,
+	discount_value      INT NOT NULL,
+	created_at          TIMESTAMPTZ DEFAULT NOW()
+);
 `
