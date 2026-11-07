@@ -18,9 +18,6 @@ CREATE TABLE IF NOT EXISTS stores (
 -- theme_color が無い既存DBへの追加（冪等）
 ALTER TABLE stores ADD COLUMN IF NOT EXISTS theme_color INT DEFAULT 1333408;
 
--- manual_discount_amount が無い既存DBへの追加（冪等）
-ALTER TABLE orders ADD COLUMN IF NOT EXISTS manual_discount_amount INT DEFAULT 0;
-
 CREATE TABLE IF NOT EXISTS business_days (
 	id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 	store_id  UUID NOT NULL REFERENCES stores(id),
@@ -40,19 +37,23 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 CREATE TABLE IF NOT EXISTS orders (
-	id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-	store_id        UUID NOT NULL REFERENCES stores(id),
-	business_day_id UUID REFERENCES business_days(id),
-	order_number    TEXT NOT NULL,
-	subtotal        INT  NOT NULL,
-	discount_amount INT  DEFAULT 0,
-	total_amount    INT  NOT NULL,
-	status          TEXT NOT NULL DEFAULT 'pending',
-	payment_method  TEXT,
-	received_amount INT,
-	ordered_at      TIMESTAMPTZ DEFAULT NOW(),
-	updated_at      TIMESTAMPTZ DEFAULT NOW()
+	id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+	store_id              UUID NOT NULL REFERENCES stores(id),
+	business_day_id       UUID REFERENCES business_days(id),
+	order_number          TEXT NOT NULL,
+	subtotal              INT  NOT NULL,
+	discount_amount       INT  DEFAULT 0,
+	manual_discount_amount INT DEFAULT 0,
+	total_amount          INT  NOT NULL,
+	status                TEXT NOT NULL DEFAULT 'pending',
+	payment_method        TEXT,
+	received_amount       INT,
+	ordered_at            TIMESTAMPTZ DEFAULT NOW(),
+	updated_at            TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- manual_discount_amount が無い既存DBへの追加（冪等）
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS manual_discount_amount INT DEFAULT 0;
 
 CREATE TABLE IF NOT EXISTS order_items (
 	id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
